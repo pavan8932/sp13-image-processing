@@ -37,7 +37,8 @@ def apply_laplacian_filter(image):
     laplacian = cv2.Laplacian(gray, cv2.CV_64F)
 
     # ③ Convert to absolute values
-    laplacian = np.uint8(np.absolute(laplacian))
+    laplacian = cv2.convertScaleAbs(laplacian, alpha=2)
+    laplacian = cv2.normalize(laplacian, None, 0, 255, cv2.NORM_MINMAX)
 
     # ④ Save PURE EDGE image (IMPORTANT)
     laplacian_edge = laplacian.copy()
