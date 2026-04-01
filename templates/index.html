@@ -147,24 +147,36 @@
             <h3>Mean Filter</h3>
             <img src="{{ mean_image }}">
             <p>Average smoothing → reduces noise but blurs edges</p>
+            <a href="{{ mean_image }}" download>
+                <button class="download-btn">Download</button>
+            </a>
         </div>
 
         <div class="card">
             <h3>Gaussian Filter</h3>
             <img src="{{ gaussian_image }}">
             <p>Weighted smoothing → better edge preservation</p>
+            <a href="{{ gaussian_image }}" download>
+                <button class="download-btn">Download</button>
+            </a>
         </div>
 
         <div class="card">
             <h3>Laplacian Sharpen</h3>
             <img src="{{ laplacian_image }}">
             <p>Enhances edges → improves sharpness</p>
+            <a href="{{ laplacian_image }}" download>
+                <button class="download-btn">Download</button>
+            </a>
         </div>
 
         <div class="card">
             <h3>Edge Detection</h3>
             <img src="{{ laplacian_edge_image }}">
             <p>Displays only edges (white on black)</p>
+            <a href="{{ laplacian_edge_image }}" download>
+                <button class="download-btn">Download</button>
+            </a>
         </div>
 
     </div>
