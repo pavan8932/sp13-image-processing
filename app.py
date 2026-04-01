@@ -1,5 +1,3 @@
-# Project Title: Image Smoothing and Sharpening with Histogram
-
 from flask import Flask, render_template, request, redirect
 import os
 import cv2
@@ -30,23 +28,19 @@ def apply_gaussian_filter(image):
     return cv2.GaussianBlur(image, (25, 25), 0)
 
 def apply_laplacian_filter(image):
-    # ① Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # ② Apply Laplacian (edge detection)
     laplacian = cv2.Laplacian(gray, cv2.CV_64F)
 
-    # ③ Convert to absolute values
+    # FIXED PROCESSING
     laplacian = cv2.convertScaleAbs(laplacian, alpha=2)
     laplacian = cv2.normalize(laplacian, None, 0, 255, cv2.NORM_MINMAX)
+    laplacian = np.uint8(laplacian)
 
-    # ④ Save PURE EDGE image (IMPORTANT)
     laplacian_edge = laplacian.copy()
 
-    # ⑤ Convert to 3-channel for sharpening
     laplacian_colored = cv2.cvtColor(laplacian, cv2.COLOR_GRAY2BGR)
 
-    # ⑥ Sharpen original image
     sharpened = cv2.addWeighted(image, 1.5, laplacian_colored, -0.5, 0)
 
     return sharpened, laplacian_edge
@@ -72,6 +66,7 @@ def save_histogram(image, filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+
     if request.method == 'POST':
         file = request.files['image']
 
@@ -87,6 +82,7 @@ def index():
         mean_img = apply_mean_filter(image)
         gaussian_img = apply_gaussian_filter(image)
         laplacian_img, laplacian_edge = apply_laplacian_filter(image)
+
         # Save images
         mean_path = os.path.join(OUTPUT_FOLDER, 'mean_' + file.filename)
         gaussian_path = os.path.join(OUTPUT_FOLDER, 'gaussian_' + file.filename)
@@ -97,14 +93,17 @@ def index():
         cv2.imwrite(gaussian_path, gaussian_img)
         cv2.imwrite(laplacian_path, laplacian_img)
         cv2.imwrite(laplacian_edge_path, laplacian_edge)
+
         print("Edge saved at:", laplacian_edge_path)
+
         # Save histograms
         hist_original = save_histogram(image, 'hist_original.png')
         hist_mean = save_histogram(mean_img, 'hist_mean.png')
         hist_gaussian = save_histogram(gaussian_img, 'hist_gaussian.png')
         hist_laplacian = save_histogram(laplacian_img, 'hist_laplacian.png')
 
-    return render_template('index.html',
+        # ✅ RETURN MUST BE INSIDE IF
+        return render_template('index.html',
             input_image='/' + input_path,
             mean_image='/' + mean_path,
             gaussian_image='/' + gaussian_path,
@@ -114,8 +113,11 @@ def index():
             hist_mean='/' + hist_mean,
             hist_gaussian='/' + hist_gaussian,
             hist_laplacian='/' + hist_laplacian
-)
+        )
 
+    # ✅ GET request
     return render_template('index.html')
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
