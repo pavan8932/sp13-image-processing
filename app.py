@@ -107,7 +107,7 @@ def index():
                                mean_image=mean_path,
                                gaussian_image=gaussian_path,
                                laplacian_image=laplacian_path,
-                               laplacian_edgeimage=laplacian_edge_path,
+                               laplacian_edge_image=laplacian_edge_path,
                                hist_original=hist_original,
                                hist_mean=hist_mean,
                                hist_gaussian=hist_gaussian,
