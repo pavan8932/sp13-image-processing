@@ -30,12 +30,25 @@ def apply_gaussian_filter(image):
     return cv2.GaussianBlur(image, (25, 25), 0)
 
 def apply_laplacian_filter(image):
+    # ① Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # ② Apply Laplacian (edge detection)
     laplacian = cv2.Laplacian(gray, cv2.CV_64F)
+
+    # ③ Convert to absolute values
     laplacian = np.uint8(np.absolute(laplacian))
+
+    # ④ Save PURE EDGE image (IMPORTANT)
+    laplacian_edge = laplacian.copy()
+
+    # ⑤ Convert to 3-channel for sharpening
     laplacian_colored = cv2.cvtColor(laplacian, cv2.COLOR_GRAY2BGR)
+
+    # ⑥ Sharpen original image
     sharpened = cv2.addWeighted(image, 1.5, laplacian_colored, -0.5, 0)
-    return sharpened
+
+    return sharpened, laplacian_edge
 
 # ---------------- HISTOGRAM FUNCTION ----------------
 
@@ -72,17 +85,17 @@ def index():
         # Apply filters
         mean_img = apply_mean_filter(image)
         gaussian_img = apply_gaussian_filter(image)
-        laplacian_img = apply_laplacian_filter(image)
-
+        laplacian_img, laplacian_edge = apply_laplacian_filter(image)
         # Save images
         mean_path = os.path.join(OUTPUT_FOLDER, 'mean_' + file.filename)
         gaussian_path = os.path.join(OUTPUT_FOLDER, 'gaussian_' + file.filename)
         laplacian_path = os.path.join(OUTPUT_FOLDER, 'laplacian_' + file.filename)
+        laplacian_edge_path = os.path.join(OUTPUT_FOLDER, 'laplacian_edge_' + file.filename)
 
         cv2.imwrite(mean_path, mean_img)
         cv2.imwrite(gaussian_path, gaussian_img)
         cv2.imwrite(laplacian_path, laplacian_img)
-
+        cv2.imwrite(laplacian_edge_path, laplacian_edge)
         # Save histograms
         hist_original = save_histogram(image, 'hist_original.png')
         hist_mean = save_histogram(mean_img, 'hist_mean.png')
@@ -94,6 +107,7 @@ def index():
                                mean_image=mean_path,
                                gaussian_image=gaussian_path,
                                laplacian_image=laplacian_path,
+                               laplacian_edgeimage=laplacian_edge_path,
                                hist_original=hist_original,
                                hist_mean=hist_mean,
                                hist_gaussian=hist_gaussian,
