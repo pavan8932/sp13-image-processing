@@ -1,181 +1,213 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Image Processing App</title>
+    <title>SP13 - Image Processing</title>
 
-<style>
-body {
-    font-family: Arial;
-    background:#111;
-    color:white;
-}
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #eef2f7;
+            margin: 0;
+        }
 
-.container {
-    width:90%;
-    margin:auto;
-}
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
 
-.upload-box {
-    border:2px dashed #555;
-    padding:30px;
-    text-align:center;
-}
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
 
-.grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
-}
+        .upload-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
 
-.card {
-    background:#222;
-    padding:15px;
-    border-radius:10px;
-    text-align:center;
-}
+        input[type="file"] {
+            padding: 10px;
+        }
 
-img {
-    width:100%;
-    border-radius:10px;
-}
+        button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-button {
-    padding:10px;
-    margin-top:10px;
-}
-</style>
+        button:hover {
+            background: #2980b9;
+        }
 
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        .download-btn {
+            margin-top: 10px;
+            background: #2ecc71;
+        }
+
+        .download-btn:hover {
+            background: #27ae60;
+        }
+
+        h2 {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .type-label {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+    </style>
 </head>
 
 <body>
 
+<header>
+    <h1>Image Smoothing & Sharpening</h1>
+    <p>Digital Signal Processing (SP13 Project)</p>
+</header>
+
 <div class="container">
 
-<h1>Image Processing App</h1>
+    <!-- Upload -->
+    <div class="upload-box">
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="image" required>
+            <button type="submit">Upload & Process</button>
+        </form>
+    </div>
 
-<!-- Drag & Drop Upload -->
-<div class="upload-box" id="drop-area">
-    Drag & Drop Image OR
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="image">
-        <button type="submit">Upload</button>
-    </form>
-</div>
+    {% if input_image %}
 
-<!-- Live Camera -->
-<h3>Live Camera</h3>
-<video id="video" width="300" autoplay></video>
-<br>
-<button onclick="capture()">Capture</button>
+    <div class="type-label">
+        Image Type: {{ image_type }}
+    </div>
 
-<form method="POST" id="camForm">
-    <input type="hidden" name="camera_image" id="camera_input">
-</form>
+    <!-- RESULTS -->
+    <div class="grid">
 
-{% if input_image %}
+        <div class="card">
+            <h3>Original</h3>
+            <img src="{{ input_image }}">
+            <p>Original input image with full details</p>
+            <a href="{{ input_image }}" download>
+                <button class="download-btn">Download</button>
+            </a>
+        </div>
 
-<h3>Image Type: {{ image_type }}</h3>
+        <div class="card">
+            <h3>Mean Filter</h3>
+            <img src="{{ mean_image }}">
+            <p>Average smoothing → reduces noise but blurs edges</p>
+        </div>
 
-<div class="grid">
+        <div class="card">
+            <h3>Gaussian Filter</h3>
+            <img src="{{ gaussian_image }}">
+            <p>Weighted smoothing → better edge preservation</p>
+        </div>
 
-<!-- Original -->
-<div class="card">
-<h3>Original</h3>
-<img src="{{ input_image }}">
-<p>Original uploaded image</p>
-<a href="{{ input_image }}" download><button>Download</button></a>
-</div>
+        <div class="card">
+            <h3>Laplacian Sharpen</h3>
+            <img src="{{ laplacian_image }}">
+            <p>Enhances edges → improves sharpness</p>
+        </div>
 
-<!-- Mean -->
-<div class="card">
-<h3>Mean Filter</h3>
-<img src="{{ mean_image }}">
-<p>Blurs image using average values</p>
-</div>
+        <div class="card">
+            <h3>Edge Detection</h3>
+            <img src="{{ laplacian_edge_image }}">
+            <p>Displays only edges (white on black)</p>
+        </div>
 
-<!-- Gaussian -->
-<div class="card">
-<h3>Gaussian Filter</h3>
-<img src="{{ gaussian_image }}">
-<p>Smooths while preserving edges</p>
-</div>
+    </div>
 
-<!-- Laplacian -->
-<div class="card">
-<h3>Laplacian Sharpen</h3>
-<img src="{{ laplacian_image }}">
-<p>Enhances edges (high-pass)</p>
-</div>
+    <!-- HISTOGRAMS -->
+    <h2>Histograms</h2>
 
-<!-- Edge -->
-<div class="card">
-<h3>Edge Detection</h3>
-<img src="{{ laplacian_edge_image }}">
-<p>White edges, black background</p>
-</div>
+    <div class="grid">
 
-</div>
+        <div class="card">
+            <h3>Original</h3>
+            <img src="{{ hist_original }}">
+        </div>
 
-<h2>Histograms</h2>
+        <div class="card">
+            <h3>Mean</h3>
+            <img src="{{ hist_mean }}">
+        </div>
 
-<div class="grid">
+        <div class="card">
+            <h3>Gaussian</h3>
+            <img src="{{ hist_gaussian }}">
+        </div>
 
-<div class="card">
-<img src="{{ hist_original }}">
-</div>
+        <div class="card">
+            <h3>Laplacian</h3>
+            <img src="{{ hist_laplacian }}">
+        </div>
 
-<div class="card">
-<img src="{{ hist_mean }}">
-</div>
+        <div class="card">
+            <h3>Edge Histogram</h3>
+            <img src="{{ hist_edge }}">
+        </div>
 
-<div class="card">
-<img src="{{ hist_gaussian }}">
-</div>
+    </div>
 
-<div class="card">
-<img src="{{ hist_laplacian }}">
-</div>
-
-<div class="card">
-<img src="{{ hist_edge }}">
-</div>
+    {% endif %}
 
 </div>
 
-{% endif %}
-
-</div>
-
-<script>
-// CAMERA
-navigator.mediaDevices.getUserMedia({ video: true })
-.then(stream => document.getElementById('video').srcObject = stream);
-
-// Capture image
-function capture(){
-    let canvas = document.createElement('canvas');
-    let video = document.getElementById('video');
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    canvas.getContext('2d').drawImage(video,0,0);
-
-    let data = canvas.toDataURL('image/jpeg');
-    document.getElementById('camera_input').value = data;
-    document.getElementById('camForm').submit();
-}
-
-// DRAG DROP
-let dropArea = document.getElementById('drop-area');
-
-dropArea.ondragover = e => e.preventDefault();
-
-dropArea.ondrop = e => {
-    e.preventDefault();
-    document.querySelector('input[type=file]').files = e.dataTransfer.files;
-};
-</script>
+<footer>
+    <p>Developed using Python, Flask & OpenCV</p>
+</footer>
 
 </body>
 </html>
