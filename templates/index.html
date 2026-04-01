@@ -6,9 +6,16 @@
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #eef2f7;
             margin: 0;
-            padding: 0;
+            transition: 0.3s;
+            background: #eef2f7;
+            color: #000;
+        }
+
+        /* DARK MODE */
+        body.dark {
+            background: #121212;
+            color: #fff;
         }
 
         header {
@@ -30,10 +37,11 @@
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             text-align: center;
+            transition: 0.3s;
         }
 
-        input[type="file"] {
-            padding: 10px;
+        body.dark .upload-box {
+            background: #1e1e1e;
         }
 
         button {
@@ -46,13 +54,16 @@
             margin-left: 10px;
         }
 
-        button:hover {
-            background: #2980b9;
+        .toggle-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: #000;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
@@ -63,11 +74,11 @@
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             padding: 15px;
             text-align: center;
-            transition: transform 0.2s;
+            transition: 0.3s;
         }
 
-        .card:hover {
-            transform: scale(1.03);
+        body.dark .card {
+            background: #1e1e1e;
         }
 
         .card img {
@@ -75,11 +86,24 @@
             border-radius: 8px;
         }
 
+        .desc {
+            font-size: 14px;
+            color: #555;
+        }
+
+        body.dark .desc {
+            color: #ccc;
+        }
+
         footer {
             text-align: center;
             margin-top: 40px;
             padding: 15px;
             color: #777;
+        }
+
+        body.dark footer {
+            color: #aaa;
         }
     </style>
 </head>
@@ -89,6 +113,9 @@
 <header>
     <h1>Image Smoothing & Sharpening</h1>
     <p>Digital Signal Processing (SP13 Project)</p>
+
+    <!-- DARK MODE BUTTON -->
+    <button class="toggle-btn" onclick="toggleDarkMode()">🌙 Dark</button>
 </header>
 
 <div class="container">
@@ -101,45 +128,42 @@
         </form>
     </div>
 
-    <!-- Results -->
     {% if input_image %}
     <div class="grid">
 
         <div class="card">
             <h3>Original</h3>
             <img src="{{ input_image }}">
-            <p>Input image uploaded by user</p>
+            <p class="desc">Original image containing all frequencies.</p>
         </div>
 
         <div class="card">
             <h3>Mean Filter</h3>
             <img src="{{ mean_image }}">
-            <p>Strong smoothing (Low-pass filter)</p>
+            <p class="desc">Uniform smoothing (low-pass filter).</p>
         </div>
 
         <div class="card">
             <h3>Gaussian Filter</h3>
             <img src="{{ gaussian_image }}">
-            <p>Weighted smoothing with better edge preservation</p>
+            <p class="desc">Weighted smoothing with better edge preservation.</p>
         </div>
 
         <div class="card">
-            <h3>Laplacian (Sharpened)</h3>
+            <h3>Laplacian Sharpening</h3>
             <img src="{{ laplacian_image }}">
-            <p>Sharpened image using Laplacian</p>
+            <p class="desc">Enhances edges using high-pass filtering.</p>
         </div>
 
-        <!-- ✅ NEW EDGE DETECTION CARD -->
         <div class="card">
             <h3>Laplacian Edge Detection</h3>
             <img src="{{ laplacian_edge_image }}">
-            <p>Pure edge detection (white edges, black background)</p>
+            <p class="desc">Pure edges (white edges on black background).</p>
         </div>
 
     </div>
     {% endif %}
 
-    <!-- Histograms -->
     {% if hist_original %}
     <h2 style="margin-top:40px;">Histograms</h2>
 
@@ -165,6 +189,11 @@
             <img src="{{ hist_laplacian }}">
         </div>
 
+        <div class="card">
+            <h3>Laplacian Edge Histogram</h3>
+            <img src="{{ hist_laplacian_edge }}">
+        </div>
+
     </div>
     {% endif %}
 
@@ -173,6 +202,13 @@
 <footer>
     <p>Developed using Python, Flask & OpenCV</p>
 </footer>
+
+<!-- DARK MODE SCRIPT -->
+<script>
+function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+}
+</script>
 
 </body>
 </html>
