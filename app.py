@@ -96,24 +96,25 @@ def index():
         cv2.imwrite(gaussian_path, gaussian_img)
         cv2.imwrite(laplacian_path, laplacian_img)
         cv2.imwrite(laplacian_edge_path, laplacian_edge)
+        print("Edge saved at:", laplacian_edge_path)
         # Save histograms
         hist_original = save_histogram(image, 'hist_original.png')
         hist_mean = save_histogram(mean_img, 'hist_mean.png')
         hist_gaussian = save_histogram(gaussian_img, 'hist_gaussian.png')
         hist_laplacian = save_histogram(laplacian_img, 'hist_laplacian.png')
 
-        return render_template('index.html',
-                               input_image=input_path,
-                               mean_image=mean_path,
-                               gaussian_image=gaussian_path,
-                               laplacian_image=laplacian_path,
-                               laplacian_edge_image=laplacian_edge_path,
-                               hist_original=hist_original,
-                               hist_mean=hist_mean,
-                               hist_gaussian=hist_gaussian,
-                               hist_laplacian=hist_laplacian)
+    return render_template('index.html',
+            input_image='/' + input_path,
+            mean_image='/' + mean_path,
+            gaussian_image='/' + gaussian_path,
+            laplacian_image='/' + laplacian_path,
+            laplacian_edge_image='/' + laplacian_edge_path,
+            hist_original='/' + hist_original,
+            hist_mean='/' + hist_mean,
+            hist_gaussian='/' + hist_gaussian,
+            hist_laplacian='/' + hist_laplacian
+)
 
     return render_template('index.html')
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
