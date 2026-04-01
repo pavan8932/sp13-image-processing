@@ -1,90 +1,71 @@
-# ---------------- IMPORTS ----------------
 from flask import Flask, render_template, request, redirect
 import os
 import cv2
 import numpy as np
+
+# 🔥 IMPORTANT FIX FOR RENDER (NO DISPLAY ERROR)
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# ---------------- APP CONFIG ----------------
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'static/uploads'
 OUTPUT_FOLDER = 'static/outputs'
-HIST_FOLDER = 'static/outputs'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 
-# Create folders if not exist
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-if not os.path.exists(OUTPUT_FOLDER):
-    os.makedirs(OUTPUT_FOLDER)
+# ---------------- FILTERS ----------------
 
-# ---------------- FILTER FUNCTIONS ----------------
-
-# Mean Filter (LESS blur → visible difference)
 def apply_mean_filter(image):
     return cv2.blur(image, (7, 7))
 
-# Gaussian Filter (smooth + natural)
 def apply_gaussian_filter(image):
     return cv2.GaussianBlur(image, (7, 7), 1.5)
 
-# Laplacian Filter (Edge + Sharpen)
 def apply_laplacian_filter(image):
-
-    # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Apply Laplacian
     laplacian = cv2.Laplacian(gray, cv2.CV_64F)
 
-    # Enhance edges
     laplacian = cv2.convertScaleAbs(laplacian, alpha=2)
     laplacian = cv2.normalize(laplacian, None, 0, 255, cv2.NORM_MINMAX)
     laplacian = np.uint8(laplacian)
 
-    # Pure edge image
     laplacian_edge = laplacian.copy()
 
-    # Convert to color for sharpening
     laplacian_colored = cv2.cvtColor(laplacian, cv2.COLOR_GRAY2BGR)
-
-    # Sharpen original image
     sharpened = cv2.addWeighted(image, 1.5, laplacian_colored, -0.5, 0)
 
     return sharpened, laplacian_edge
 
-# ---------------- HISTOGRAM FUNCTION ----------------
+# ---------------- HISTOGRAM ----------------
 
 def save_histogram(image, filename):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     plt.figure()
     plt.hist(gray.ravel(), bins=256)
-    plt.title("Histogram")
-    plt.xlabel("Pixel Intensity")
-    plt.ylabel("Frequency")
 
-    path = os.path.join(HIST_FOLDER, filename)
+    path = os.path.join(OUTPUT_FOLDER, filename)
     plt.savefig(path)
     plt.close()
 
     return path
 
-# ---------------- MAIN ROUTE ----------------
+# ---------------- ROUTE ----------------
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
-    # -------- POST (PROCESS IMAGE) --------
     if request.method == 'POST':
+        file = request.files.get('image')
 
-        file = request.files['image']
-
-        if file.filename == '':
+        if not file or file.filename == '':
             return redirect(request.url)
 
         # Save input image
@@ -94,12 +75,16 @@ def index():
         # Read image
         image = cv2.imread(input_path)
 
+        # 🔥 FIX: Prevent crash if image not loaded
+        if image is None:
+            return "Error: Could not read image"
+
         # Apply filters
         mean_img = apply_mean_filter(image)
         gaussian_img = apply_gaussian_filter(image)
         laplacian_img, laplacian_edge = apply_laplacian_filter(image)
 
-        # Save output images
+        # Save outputs
         mean_path = os.path.join(OUTPUT_FOLDER, 'mean_' + file.filename)
         gaussian_path = os.path.join(OUTPUT_FOLDER, 'gaussian_' + file.filename)
         laplacian_path = os.path.join(OUTPUT_FOLDER, 'laplacian_' + file.filename)
@@ -110,16 +95,13 @@ def index():
         cv2.imwrite(laplacian_path, laplacian_img)
         cv2.imwrite(laplacian_edge_path, laplacian_edge)
 
-        print("Edge saved at:", laplacian_edge_path)
-
-        # -------- HISTOGRAMS --------
+        # Histograms
         hist_original = save_histogram(image, 'hist_original.png')
         hist_mean = save_histogram(mean_img, 'hist_mean.png')
         hist_gaussian = save_histogram(gaussian_img, 'hist_gaussian.png')
         hist_laplacian = save_histogram(laplacian_img, 'hist_laplacian.png')
         hist_laplacian_edge = save_histogram(laplacian_edge, 'hist_laplacian_edge.png')
 
-        # -------- RETURN RESULT --------
         return render_template('index.html',
             input_image='/' + input_path,
             mean_image='/' + mean_path,
@@ -133,10 +115,8 @@ def index():
             hist_laplacian_edge='/' + hist_laplacian_edge
         )
 
-    # -------- GET (INITIAL LOAD) --------
     return render_template('index.html')
 
 
-# ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(debug=True)
