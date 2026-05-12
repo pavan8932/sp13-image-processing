@@ -79,9 +79,15 @@
             margin-top: 8px;
         }
 
+        /* ✅ FIXED DOWNLOAD BUTTON */
         .download-btn {
+            display: inline-block;
             margin-top: 10px;
+            padding: 10px 20px;
             background: #2ecc71;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
         }
 
         .download-btn:hover {
@@ -137,46 +143,36 @@
         <div class="card">
             <h3>Original</h3>
             <img src="{{ input_image }}">
-            <p>Original input image with full details</p>
-            <a href="{{ input_image }}" download>
-                <button class="download-btn">Download</button>
-            </a>
+            <p>Original input image</p>
+            <a href="{{ input_image }}" download class="download-btn">Download</a>
         </div>
 
         <div class="card">
             <h3>Mean Filter</h3>
             <img src="{{ mean_image }}">
             <p>Average smoothing → reduces noise but blurs edges</p>
-            <a href="{{ mean_image }}" download>
-                <button class="download-btn">Download</button>
-            </a>
+            <a href="{{ mean_image }}" download class="download-btn">Download</a>
         </div>
 
         <div class="card">
             <h3>Gaussian Filter</h3>
             <img src="{{ gaussian_image }}">
             <p>Weighted smoothing → better edge preservation</p>
-            <a href="{{ gaussian_image }}" download>
-                <button class="download-btn">Download</button>
-            </a>
+            <a href="{{ gaussian_image }}" download class="download-btn">Download</a>
         </div>
 
         <div class="card">
             <h3>Laplacian Sharpen</h3>
             <img src="{{ laplacian_image }}">
             <p>Enhances edges → improves sharpness</p>
-            <a href="{{ laplacian_image }}" download>
-                <button class="download-btn">Download</button>
-            </a>
+            <a href="{{ laplacian_image }}" download class="download-btn">Download</a>
         </div>
 
         <div class="card">
             <h3>Edge Detection</h3>
             <img src="{{ laplacian_edge_image }}">
-            <p>Displays only edges (white on black)</p>
-            <a href="{{ laplacian_edge_image }}" download>
-                <button class="download-btn">Download</button>
-            </a>
+            <p>White edges on black background</p>
+            <a href="{{ laplacian_edge_image }}" download class="download-btn">Download</a>
         </div>
 
     </div>

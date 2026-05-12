@@ -25,9 +25,9 @@ def apply_mean_filter(image):
 
 # Gaussian Filter
 def apply_gaussian_filter(image):
+    # IMPROVED LAPLACIAN FILTER
     return cv2.GaussianBlur(image, (15, 15), 0)
 
-# 🔥 FINAL IMPROVED LAPLACIAN FILTER
 def apply_laplacian_filter(image):
 
     # Convert to grayscale
